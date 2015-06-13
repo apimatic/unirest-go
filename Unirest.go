@@ -7,97 +7,97 @@
 package unirest
 
 import(
-	"net/http"
+    "net/http"
 )
 
 func Get(url string, headers map[string]string) *Request {
-	req := NewRequest(GET, url, headers, nil, "", "")
-	return req
+    req := NewRequest(GET, url, headers, nil, "", "")
+    return req
 }
 
 func GetWithAuth(url string, headers map[string]string, username string, password string) *Request {
-	req := NewRequest(GET, url, headers, nil, username, password)
-	return req
+    req := NewRequest(GET, url, headers, nil, username, password)
+    return req
 }
 
 func Post(url string, headers map[string]string, body interface{}) *Request {
-	req := NewRequest(POST, url, headers, body, "", "")
-	return req
+    req := NewRequest(POST, url, headers, body, "", "")
+    return req
 }
 
 func PostWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
-	req := NewRequest(POST, url, headers, body, username, password)
-	return req
+    req := NewRequest(POST, url, headers, body, username, password)
+    return req
 }
 
 func Put(url string, headers map[string]string, body interface{}) *Request {
-	req := NewRequest(PUT, url, headers, body, "", "")
-	return req
+    req := NewRequest(PUT, url, headers, body, "", "")
+    return req
 }
 
 func PutWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
-	req := NewRequest(PUT, url, headers, body, username, password)
-	return req
+    req := NewRequest(PUT, url, headers, body, username, password)
+    return req
 }
 
 func Patch(url string, headers map[string]string, body interface{}) *Request {
-	req := NewRequest(PATCH, url, headers, body, "", "")
-	return req
+    req := NewRequest(PATCH, url, headers, body, "", "")
+    return req
 }
 
 func PatchWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
-	req := NewRequest(PATCH, url, headers, body, username, password)
-	return req
+    req := NewRequest(PATCH, url, headers, body, username, password)
+    return req
 }
 
 func Delete(url string, headers map[string]string) *Request {
-	req := NewRequest(DELETE, url, headers, nil, "", "")
-	return req
+    req := NewRequest(DELETE, url, headers, nil, "", "")
+    return req
 }
 
 func DeleteWithAuth(url string, headers map[string]string, username string, password string) *Request {
-	req := NewRequest(DELETE, url, headers, nil, username, password)
-	return req
+    req := NewRequest(DELETE, url, headers, nil, username, password)
+    return req
 }
 
 func AsBinary(request *Request) (*Response, error) {
-	//prepare the underlying http request
-	req, err := request.PrepareRequest()
-	if err != nil {
-		return nil, err
+    //prepare the underlying http request
+    req, err := request.PrepareRequest()
+    if err != nil {
+        return nil, err
     }
-	
-	//perform the underlying http request
-	resp, err := request.httpClient.Do(req)
-	if err != nil {
-		return nil, err
+    
+    //perform the underlying http request
+    resp, err := request.httpClient.Do(req)
+    if err != nil {
+        return nil, err
     }
-	
-	//prepare the response object
-	response, err := NewBinaryResponse(resp)
-	return response, err
+    
+    //prepare the response object
+    response, err := NewBinaryResponse(resp)
+    return response, err
 }
 
 func AsString(request *Request) (*Response, error) {
-	//perform the underlying http request
-	resp, err := send(request)
-	if err != nil {
-		return nil, err
+    //perform the underlying http request
+    resp, err := send(request)
+    if err != nil {
+        return nil, err
     }
-	
-	//prepare the response object
-	response, err := NewStringResponse(resp)
-	return response, err
+    
+    //prepare the response object
+    response, err := NewStringResponse(resp)
+    return response, err
 }
 
 func send(request *Request) (*http.Response, error) {
-	//prepare the underlying http request
-	req, err := request.PrepareRequest()
-	if err != nil {
-		return nil, err
+    //prepare the underlying http request
+    req, err := request.PrepareRequest()
+    if err != nil {
+        return nil, err
     }
-	
-	//perform the underlying http request
-	resp, err := request.httpClient.Do(req)
-	return resp, err
+    
+    //perform the underlying http request
+    resp, err := request.httpClient.Do(req)
+    return resp, err
 }
