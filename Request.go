@@ -15,10 +15,9 @@ import (
 type Request struct {
     httpClient *http.Client
     connectTimeout int
-    
     httpMethod HttpMethod  			//HTTP method for the outgoing request
     url string 						//Url for the outgoing request
-    headers map[string]string 		//Headers for the outgoing request
+    headers map[string]interface{}  //Headers for the outgoing request
     body interface{} 				//Parameters for raw body type request
     username string					//Basic auth password
     password string					//Basic auth password
@@ -29,7 +28,7 @@ type jsonable interface {
 }
 
 func NewRequest(method HttpMethod, url string,
-     headers map[string]string, parameters interface{},
+     headers map[string]interface{}, parameters interface{},
      username string, password string) *Request {
      
      request := makeRequest(method, url, headers, username, password)
@@ -38,7 +37,7 @@ func NewRequest(method HttpMethod, url string,
 }
      
 func makeRequest(method HttpMethod, url string,
-     headers map[string]string,
+     headers map[string]interface{},
      username string, password string) *Request {
      
      //prepare a new request object
@@ -84,18 +83,16 @@ func (me *Request) PrepareRequest() (*http.Request, error) {
 func (me *Request) encodeHeaders(req *http.Request) (*http.Request) {
     if(me.headers != nil) {
         for key, value := range me.headers {
-            req.Header.Add(key, value)
+            req.Header.Add(key, toString(value))
         }
     }
-    
     if(len(me.username) > 1 || len(me.password) > 1) {
         authToken := base64.StdEncoding.EncodeToString([]byte(me.username + ":" + me.password))
         req.Header.Add("Authorization", "Basic " + authToken) 
     }
-    
     return req
 }
- 
+
 func (me *Request) encodeBody(method string) (*http.Request, error) {
     var req *http.Request
     var err error
@@ -103,21 +100,9 @@ func (me *Request) encodeBody(method string) (*http.Request, error) {
     //given body is a param collection
     if params, ok := me.body.(map[string]interface{}); ok {
         paramValues := url.Values{} 
-        for key, value := range params {
-            if reflect.TypeOf(value).Name() == "string" {
-                paramValues.Add(key, value.(string))
-            } else if reflect.TypeOf(value).Name() == "float64" {
-                paramValues.Add(key, strconv.FormatFloat(value.(float64), 'f', -1, 64))
-            } else if reflect.TypeOf(value).Name() == "int" {
-                paramValues.Add(key, strconv.Itoa(value.(int)))
-            } else if j, ok := value.(jsonable); ok {
-                paramValues.Add(key, j.ToJson())
-            } else {
-                jsonValue, _ := json.Marshal(value)
-                paramValues.Add(key, string(jsonValue[:]))
-            }
+        for key, val := range params {
+            paramValues.Add(key, toString(val))
         }
-        
         req, err = http.NewRequest(method, me.url, nil)
         req.Form = paramValues
     } else { //given a raw body object
@@ -125,7 +110,6 @@ func (me *Request) encodeBody(method string) (*http.Request, error) {
         if err != nil {
             return nil, errors.New("Invalid JSON in the query")
         }
-        
         reader := bytes.NewReader(bodyBytes)
         req, err = http.NewRequest(method, me.url, reader)
         req.Header.Add("Content-Length", strconv.Itoa(len(string(bodyBytes))))
@@ -133,4 +117,29 @@ func (me *Request) encodeBody(method string) (*http.Request, error) {
     } 	
     
     return req, err
+}
+
+func toString(val interface{}) string {
+    value := reflect.ValueOf(val)
+    valueType := value.Type().String()
+    switch valueType {
+        case "bool":
+            return strconv.FormatBool(value.Bool())
+        case "int", "int8", "int32", "int64",
+             "uint", "uint8", "uint32", "uint64":
+            return strconv.FormatInt(value.Int(), 10)
+        case "float32":
+            return strconv.FormatFloat(value.Float(), 'f', -1, 32)
+        case "float64":
+            return strconv.FormatFloat(value.Float(), 'f', -1, 64)
+        case "string":
+            return value.String()
+        case "*time.Time":
+            return value.Elem().Interface().(time.Time).String()
+        case "time.Time":
+            return value.Interface().(time.Time).String()
+        default:
+            jsonValue, _ := json.Marshal(val)
+            return string(jsonValue[:])
+    }    
 }

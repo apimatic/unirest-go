@@ -10,52 +10,52 @@ import(
     "net/http"
 )
 
-func Get(url string, headers map[string]string) *Request {
+func Get(url string, headers map[string]interface{}) *Request {
     req := NewRequest(GET, url, headers, nil, "", "")
     return req
 }
 
-func GetWithAuth(url string, headers map[string]string, username string, password string) *Request {
+func GetWithAuth(url string, headers map[string]interface{}, username string, password string) *Request {
     req := NewRequest(GET, url, headers, nil, username, password)
     return req
 }
 
-func Post(url string, headers map[string]string, body interface{}) *Request {
+func Post(url string, headers map[string]interface{}, body interface{}) *Request {
     req := NewRequest(POST, url, headers, body, "", "")
     return req
 }
 
-func PostWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
+func PostWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
     req := NewRequest(POST, url, headers, body, username, password)
     return req
 }
 
-func Put(url string, headers map[string]string, body interface{}) *Request {
+func Put(url string, headers map[string]interface{}, body interface{}) *Request {
     req := NewRequest(PUT, url, headers, body, "", "")
     return req
 }
 
-func PutWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
+func PutWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
     req := NewRequest(PUT, url, headers, body, username, password)
     return req
 }
 
-func Patch(url string, headers map[string]string, body interface{}) *Request {
+func Patch(url string, headers map[string]interface{}, body interface{}) *Request {
     req := NewRequest(PATCH, url, headers, body, "", "")
     return req
 }
 
-func PatchWithAuth(url string, headers map[string]string, body interface{}, username string, password string) *Request {
+func PatchWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
     req := NewRequest(PATCH, url, headers, body, username, password)
     return req
 }
 
-func Delete(url string, headers map[string]string) *Request {
+func Delete(url string, headers map[string]interface{}) *Request {
     req := NewRequest(DELETE, url, headers, nil, "", "")
     return req
 }
 
-func DeleteWithAuth(url string, headers map[string]string, username string, password string) *Request {
+func DeleteWithAuth(url string, headers map[string]interface{}, username string, password string) *Request {
     req := NewRequest(DELETE, url, headers, nil, username, password)
     return req
 }
