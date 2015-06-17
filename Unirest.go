@@ -6,10 +6,6 @@
 
 package unirest
 
-import(
-    "net/http"
-)
-
 func Get(url string, headers map[string]interface{}) *Request {
     req := NewRequest(GET, url, headers, nil, "", "")
     return req
@@ -61,43 +57,21 @@ func DeleteWithAuth(url string, headers map[string]interface{}, username string,
 }
 
 func AsBinary(request *Request) (*Response, error) {
-    //prepare the underlying http request
-    req, err := request.PrepareRequest()
-    if err != nil {
-        return nil, err
-    }
-    
     //perform the underlying http request
-    resp, err := request.httpClient.Do(req)
+    res, err := request.PerformRequest()
     if err != nil {
         return nil, err
     }
-    
     //prepare the response object
-    response, err := NewBinaryResponse(resp)
-    return response, err
+    return NewBinaryResponse(res)
 }
 
 func AsString(request *Request) (*Response, error) {
     //perform the underlying http request
-    resp, err := send(request)
+    resp, err := request.PerformRequest()
     if err != nil {
         return nil, err
     }
-    
     //prepare the response object
-    response, err := NewStringResponse(resp)
-    return response, err
-}
-
-func send(request *Request) (*http.Response, error) {
-    //prepare the underlying http request
-    req, err := request.PrepareRequest()
-    if err != nil {
-        return nil, err
-    }
-    
-    //perform the underlying http request
-    resp, err := request.httpClient.Do(req)
-    return resp, err
+    return NewStringResponse(resp)
 }

@@ -13,25 +13,21 @@ type Response struct {
 }
 
 func NewStringResponse(resp *http.Response) (*Response, error) {
-    res, err :=	NewBinaryResponse(resp)
-    if err != nil{
-        return nil, err
+    res, err := NewBinaryResponse(resp)
+    if err == nil {
+        res.Body = string(res.RawBody)
     }
-    
-    res.Body = string(res.RawBody)
     return res, err
 }
 
 func NewBinaryResponse(resp *http.Response) (*Response, error) {
+    var res []byte = nil
     //read response body
     res, err := ioutil.ReadAll(resp.Body)
-    resp.Body.Close()
-     
-    //error reading response
     if err != nil {
         return nil, err
     }
-    
+    defer resp.Body.Close()
     return makeResponse(resp.StatusCode, res, resp.Header), nil
 }
 
