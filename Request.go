@@ -10,6 +10,7 @@ import (
     "net/http"
     "net/url"
     "reflect"
+    "github.com/wayn3h0/go-uuid"
 )
 
 type Request struct {
@@ -210,7 +211,9 @@ func toString(value reflect.Value) string {
         case "string":
             return value.String()	
         case "time.Time":
-            return value.Interface().(time.Time).String()
+            return value.Interface().(time.Time).String()	
+	    case "uuid.UUID":
+	        return value.Interface().(uuid.UUID).String()
         default:
             jsonValue, _ := json.Marshal(value)
             return string(jsonValue[:])
