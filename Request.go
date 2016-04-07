@@ -212,8 +212,8 @@ func toString(value reflect.Value) string {
             return value.String()	
         case "time.Time":
             return value.Interface().(time.Time).String()	
-	case "uuid.UUID":
-	    return value.Interface().(uuid.UUID).String()
+	    case "uuid.UUID":
+	        return value.Interface().(uuid.UUID).String()
         default:
             jsonValue, _ := json.Marshal(value)
             return string(jsonValue[:])
