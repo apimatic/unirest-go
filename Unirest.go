@@ -7,71 +7,71 @@
 package unirest
 
 func Get(url string, headers map[string]interface{}) *Request {
-    req := NewRequest(GET, url, headers, nil, "", "")
-    return req
+	req := NewRequest(GET, url, headers, nil, "", "")
+	return req
 }
 
 func GetWithAuth(url string, headers map[string]interface{}, username string, password string) *Request {
-    req := NewRequest(GET, url, headers, nil, username, password)
-    return req
+	req := NewRequest(GET, url, headers, nil, username, password)
+	return req
 }
 
 func Post(url string, headers map[string]interface{}, body interface{}) *Request {
-    req := NewRequest(POST, url, headers, body, "", "")
-    return req
+	req := NewRequest(POST, url, headers, body, "", "")
+	return req
 }
 
 func PostWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
-    req := NewRequest(POST, url, headers, body, username, password)
-    return req
+	req := NewRequest(POST, url, headers, body, username, password)
+	return req
 }
 
 func Put(url string, headers map[string]interface{}, body interface{}) *Request {
-    req := NewRequest(PUT, url, headers, body, "", "")
-    return req
+	req := NewRequest(PUT, url, headers, body, "", "")
+	return req
 }
 
 func PutWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
-    req := NewRequest(PUT, url, headers, body, username, password)
-    return req
+	req := NewRequest(PUT, url, headers, body, username, password)
+	return req
 }
 
 func Patch(url string, headers map[string]interface{}, body interface{}) *Request {
-    req := NewRequest(PATCH, url, headers, body, "", "")
-    return req
+	req := NewRequest(PATCH, url, headers, body, "", "")
+	return req
 }
 
 func PatchWithAuth(url string, headers map[string]interface{}, body interface{}, username string, password string) *Request {
-    req := NewRequest(PATCH, url, headers, body, username, password)
-    return req
+	req := NewRequest(PATCH, url, headers, body, username, password)
+	return req
 }
 
 func Delete(url string, headers map[string]interface{}) *Request {
-    req := NewRequest(DELETE, url, headers, nil, "", "")
-    return req
+	req := NewRequest(DELETE, url, headers, nil, "", "")
+	return req
 }
 
 func DeleteWithAuth(url string, headers map[string]interface{}, username string, password string) *Request {
-    req := NewRequest(DELETE, url, headers, nil, username, password)
-    return req
+	req := NewRequest(DELETE, url, headers, nil, username, password)
+	return req
 }
 
 func AsBinary(request *Request) (*Response, error) {
-    //perform the underlying http request
-    res, err := request.PerformRequest()
-    if err != nil {
-        return nil, err
-    }
-    //prepare the response object
-    return NewBinaryResponse(res)
+	//perform the underlying http request
+	res, err := request.PerformRequest()
+	if err != nil {
+		return nil, err
+	}
+	//prepare the response object
+	return NewBinaryResponse(res)
 }
 
 func AsString(request *Request) (*Response, error) {
-    //perform the underlying http request
-    resp, err := request.PerformRequest()
-    if err != nil {
-        return nil, err
-    }
-    //prepare the response object
-    return NewStringResponse(resp)
+	//perform the underlying http request
+	resp, err := request.PerformRequest()
+	if err != nil {
+		return nil, err
+	}
+	//prepare the response object
+	return NewStringResponse(resp)
 }
