@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"github.com/ajg/form"
 	"github.com/satori/go.uuid"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -106,32 +108,82 @@ func (me *Request) encodeHeaders(req *http.Request) {
 	}
 }
 
+//Decides whether to encode using form parameters with multipart/url encoded or send as a raw body
 func (me *Request) encodeBody(method string) (*http.Request, error) {
 	var req *http.Request
 	var err error
-
-	//given body is a param collection
 	if params, ok := me.body.(map[string]interface{}); ok {
-		paramValues := url.Values{}
-		for key, val := range params {
-			strVal := ToString(val, "")
-			if len(strVal) > 0 {
-				paramValues.Add(key, strVal)
+		//encode parameters using form encoder with brackets
+		param, _ := form.EncodeToValues(params, form.BRACKET)
+		//Check if the parameters contain a file
+		for key, _ := range param {
+			if key == "[file]" {
+				return me.encodeMultiPartFormData(method, param)
 			}
 		}
-		req, err = http.NewRequest(method, me.url, strings.NewReader(paramValues.Encode()))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	} else { //given a raw body object
-		bodyBytes, err := json.Marshal(me.body)
+		return me.encodeUrlEncodedFormData(method, param)
+	} else {
+		return me.encodeRawBody(method)
+	}
+	return req, err
+}
+
+func (me *Request) encodeUrlEncodedFormData(method string, param url.Values) (*http.Request, error) {
+	paramValues := url.Values{}
+	for key, val := range param {
+		paramValues.Add(key, ToString(val[0], ""))
+	}
+	//creating request
+	req, err := http.NewRequest(method, me.url, strings.NewReader(paramValues.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	return req, err
+}
+
+func (me *Request) encodeRawBody(method string) (*http.Request, error) {
+	isString := false
+	var bodyBytes []byte
+	var err error
+	//Serializes all parameters except string which is sent raw
+	if reflect.ValueOf(me.body).Kind() != reflect.String {
+		bodyBytes, err = json.Marshal(me.body)
 		if err != nil {
 			return nil, errors.New("Invalid JSON in the query")
 		}
-		reader := bytes.NewReader(bodyBytes)
-		req, err = http.NewRequest(method, me.url, reader)
-		req.Header.Set("Content-Length", strconv.Itoa(len(string(bodyBytes))))
-		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	} else {
+		isString = true
+		bodyBytes = []byte(me.body.(string))
 	}
 
+	reader := bytes.NewReader(bodyBytes)
+	req, err := http.NewRequest(method, me.url, reader)
+	req.Header.Set("Content-Length", strconv.Itoa(len(string(bodyBytes))))
+	if(!isString){
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")		
+	} 
+	return req, err
+}
+
+func (me *Request) encodeMultiPartFormData(method string, param url.Values) (*http.Request, error) {
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	//Adds the file data
+	for key, val := range param {
+		if key == "[file]" {
+			part, _ := writer.CreateFormFile("file", "file_encode")
+			part.Write([]byte(val[0]))
+		}
+	}
+	//Adds additional parameters
+	for key, val := range param {
+		if key != "[file]" {
+			writer.WriteField(key, ToString(val[0], ""))
+		}
+	}
+	writer.Close()
+
+	req, err := http.NewRequest(method, me.url, body)
+	req.Header.Add("Content-Type", writer.FormDataContentType())
 	return req, err
 }
 
@@ -197,11 +249,6 @@ func toString(value reflect.Value) string {
 		value = value.Elem()
 	}
 
-	if valueKind == reflect.Slice {
-		jsonValue, _ := json.Marshal(value.Interface())
-		return string(jsonValue)
-	}
-
 	valueType := value.Type().String()
 	switch valueType {
 	case "bool":
@@ -220,7 +267,7 @@ func toString(value reflect.Value) string {
 	case "uuid.UUID":
 		return value.Interface().(uuid.UUID).String()
 	default:
-		jsonValue, _ := json.Marshal(value)
-		return string(jsonValue[:])
+		jsonValue, _ := json.Marshal(value.Interface())
+		return string(jsonValue)
 	}
 }
