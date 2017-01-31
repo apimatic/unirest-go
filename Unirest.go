@@ -46,13 +46,13 @@ func PatchWithAuth(url string, headers map[string]interface{}, body interface{},
 	return req
 }
 
-func Delete(url string, headers map[string]interface{}) *Request {
-	req := NewRequest(DELETE, url, headers, nil, "", "")
+func Delete(url string, headers map[string]interface{},body interface{}) *Request {
+	req := NewRequest(DELETE, url, headers,body, "", "")
 	return req
 }
 
-func DeleteWithAuth(url string, headers map[string]interface{}, username string, password string) *Request {
-	req := NewRequest(DELETE, url, headers, nil, username, password)
+func DeleteWithAuth(url string, headers map[string]interface{}, username string, password string,body interface{}) *Request {
+	req := NewRequest(DELETE, url, headers, body, username, password)
 	return req
 }
 
