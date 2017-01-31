@@ -51,7 +51,7 @@ func Delete(url string, headers map[string]interface{},body interface{}) *Reques
 	return req
 }
 
-func DeleteWithAuth(url string, headers map[string]interface{}, username string, password string,body interface{}) *Request {
+func DeleteWithAuth(url string, headers map[string]interface{},body interface{}, username string, password string) *Request {
 	req := NewRequest(DELETE, url, headers, body, username, password)
 	return req
 }
