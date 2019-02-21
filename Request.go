@@ -85,7 +85,7 @@ func (me *Request) PerformRequest(skipVerify bool) (*http.Response, error) {
 	me.httpClient.Transport.(*http.Transport).ResponseHeaderTimeout = 10 * time.Second
 	
 	//set skipVerify SSL
-	me.httpClient.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	me.httpClient.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: skipVerify}
 
 	//perform the underlying http request
 	res, err := me.httpClient.Do(req)
