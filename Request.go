@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"crypto/tls"
 )
 
 type Request struct {
@@ -62,7 +63,7 @@ func makeRequest(method HttpMethod, url string,
 	return request
 }
 
-func (me *Request) PerformRequest() (*http.Response, error) {
+func (me *Request) PerformRequest(skipVerify bool) (*http.Response, error) {
 	var req *http.Request
 	var err error
 	var method = me.httpMethod.ToString()
@@ -82,6 +83,9 @@ func (me *Request) PerformRequest() (*http.Response, error) {
 	//set timeout values
 	me.httpClient.Transport.(*http.Transport).TLSHandshakeTimeout += 2 * time.Second
 	me.httpClient.Transport.(*http.Transport).ResponseHeaderTimeout = 10 * time.Second
+	
+	//set skipVerify SSL
+	me.httpClient.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	//perform the underlying http request
 	res, err := me.httpClient.Do(req)
